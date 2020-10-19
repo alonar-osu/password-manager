@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.alonar.android.passmanager.utilities.DateConverter;
+
 import java.util.ArrayList;
+import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterViewHolder> {
-    private ArrayList<String> mDataset;
+    private ArrayList<PassEntry> mDataset;
 
     @NonNull
     @Override
@@ -28,7 +31,11 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
 
     @Override
     public void onBindViewHolder(@NonNull PassAdapterViewHolder holder, int position) {
-        holder.mPassNameTextView.setText(mDataset.get(position));
+        holder.nameTextView.setText(mDataset.get(position).getName());
+
+        Date date = mDataset.get(position).getDate();
+        String dateString = DateConverter.dateToString(date);
+        holder.dateTextView.setText(dateString);
     }
 
     @Override
@@ -37,17 +44,19 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
     }
 
     public static class PassAdapterViewHolder extends RecyclerView.ViewHolder {
-        public final TextView mPassNameTextView;
+        public final TextView nameTextView;
+        public final TextView dateTextView;
 
         public PassAdapterViewHolder(View v) {
             super(v);
-            mPassNameTextView = (TextView) v.findViewById(R.id.tv_pass_data);
+            nameTextView = (TextView) v.findViewById(R.id.tv_pass_name);
+            dateTextView = (TextView) v.findViewById(R.id.tv_pass_date);
         }
 
 
     }
 
-    public PassAdapter(ArrayList<String> myDataset) {
+    public PassAdapter(ArrayList<PassEntry> myDataset) {
         mDataset = myDataset;
     }
 

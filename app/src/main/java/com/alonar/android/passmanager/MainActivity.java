@@ -2,6 +2,7 @@ package com.alonar.android.passmanager;
 
 import android.os.Bundle;
 
+import com.alonar.android.passmanager.utilities.FakeDataUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,10 +19,7 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<String> mDataset;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,20 +28,16 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.passlist_rec_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.passlist_rec_view);
 
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
 
-        // temp data for testing
-        mDataset = new ArrayList();
-        for (int i = 0; i < 100; i++) {
-            mDataset.add("hello " + i);
-        }
+        // TEMP - data for testing
+        ArrayList<PassEntry> mDataset = FakeDataUtils.generateFakePassEntry();
 
-
-        mAdapter = new PassAdapter(mDataset);
-        recyclerView.setAdapter(mAdapter);
+        RecyclerView.Adapter mAdapter = new PassAdapter(mDataset);
+        mRecyclerView.setAdapter(mAdapter);
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
