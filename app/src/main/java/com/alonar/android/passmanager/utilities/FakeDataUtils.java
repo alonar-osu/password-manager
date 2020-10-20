@@ -1,6 +1,6 @@
 package com.alonar.android.passmanager.utilities;
 
-import com.alonar.android.passmanager.PassEntry;
+import com.alonar.android.passmanager.data.PassEntry;
 import com.alonar.android.passmanager.Type;
 
 import java.util.ArrayList;

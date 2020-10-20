@@ -1,11 +1,12 @@
 package com.alonar.android.passmanager;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+
+
+import com.alonar.android.passmanager.data.PassEntry;
+import com.alonar.android.passmanager.databinding.PassListItemBinding;
 import com.alonar.android.passmanager.utilities.DateConverter;
 
 import java.util.ArrayList;
@@ -20,46 +21,47 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
     @NonNull
     @Override
     public PassAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        int layoutIdForListItem = R.layout.pass_list_item;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        boolean shouldAttachToParentImmediately = false;
 
-        View view = inflater.inflate(layoutIdForListItem, parent, shouldAttachToParentImmediately);
-        return new PassAdapterViewHolder(view);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        PassListItemBinding itemBinding = PassListItemBinding.inflate(inflater, parent, false);
+
+        return new PassAdapterViewHolder(itemBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PassAdapterViewHolder holder, int position) {
-        holder.nameTextView.setText(mDataset.get(position).getName());
+
+        PassEntry passEntry = mDataset.get(position);
+        holder.bind(passEntry);
+
+        holder.binding.tvPassName.setText(mDataset.get(position).getName());
 
         Date date = mDataset.get(position).getDate();
         String dateString = DateConverter.dateToString(date);
-        holder.dateTextView.setText(dateString);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mDataset.size();
+        holder.binding.tvPassDate.setText(dateString);
     }
 
     public static class PassAdapterViewHolder extends RecyclerView.ViewHolder {
-        public final TextView nameTextView;
-        public final TextView dateTextView;
+        private PassListItemBinding binding;
 
-        public PassAdapterViewHolder(View v) {
-            super(v);
-            nameTextView = (TextView) v.findViewById(R.id.tv_pass_name);
-            dateTextView = (TextView) v.findViewById(R.id.tv_pass_date);
+        public PassAdapterViewHolder(PassListItemBinding binding) {
+           super(binding.getRoot());
+           this.binding = binding;
         }
 
-
+        public void bind(PassEntry passEntry) {
+            binding.setPassentry(passEntry);
+            binding.executePendingBindings();
+        }
     }
 
     public PassAdapter(ArrayList<PassEntry> myDataset) {
         mDataset = myDataset;
     }
 
-
+    @Override
+    public int getItemCount() {
+        return mDataset!= null ? mDataset.size() : 0;
+    }
 
 }
