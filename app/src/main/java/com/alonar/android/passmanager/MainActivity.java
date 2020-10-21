@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,18 +66,19 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = binding.passlistRecView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
+        setupViewModel();
+    }
 
-        final LiveData<List<PassEntry>> passEntries = mDb.passDao().loadAllEntries();
-
-        passEntries.observe(MainActivity.this, new Observer<List<PassEntry>>() {
+    private void setupViewModel() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getEntries().observe(MainActivity.this, new Observer<List<PassEntry>>() {
 
             @Override
             public void onChanged(List<PassEntry> entries) {
-                Log.d(TAG, "Receiving database update for entries");
+                Log.d(TAG, "Updating list of entries from LiveData in ViewModel");
                 mAdapter = new PassAdapter((ArrayList) entries);
                 mRecyclerView.setAdapter(mAdapter);
             }
-
         });
     }
 
