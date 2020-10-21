@@ -16,11 +16,11 @@ public class PassTypeConverter {
         Type passType = null;
 
         switch(typeIntValue) {
-            case 0: passType = Type.WEBSITE;
+            case 0: passType = Type.EMAIL;
             break;
             case 1: passType = Type.APP;
             break;
-            case 2: passType = Type.EMAIL;
+            case 2: passType = Type.WEBSITE;
             break;
             case 3: passType = Type.BANK;
             break;

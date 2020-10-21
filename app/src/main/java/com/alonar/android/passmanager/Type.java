@@ -1,7 +1,7 @@
 package com.alonar.android.passmanager;
 
 public enum Type {
-    WEBSITE(0), APP(1), EMAIL(2), BANK(3), UTILITY(4), OTHER(5);
+    EMAIL(0), APP(1), WEBSITE(2), BANK(3), UTILITY(4), OTHER(5);
 
     private final int value;
 

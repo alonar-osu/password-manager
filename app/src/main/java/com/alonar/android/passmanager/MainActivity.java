@@ -1,5 +1,6 @@
 package com.alonar.android.passmanager;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.alonar.android.passmanager.data.PassDatabase;
@@ -54,19 +55,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String entryName = "new added";
-                Type type = Type.OTHER;
-                String password = "abc123**7";
-                Date date = new Date();
-
-                final PassEntry passEntry = new PassEntry(entryName, type, password, date);
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mDb.passDao().insertEntry(passEntry);
-
-                    }
-                });
+                Intent addEntryIntent = new Intent(MainActivity.this, AddEntryActivity.class);
+                startActivity(addEntryIntent);
             }
         });
     }
