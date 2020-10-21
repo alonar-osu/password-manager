@@ -2,58 +2,92 @@ package com.alonar.android.passmanager;
 
 import android.os.Bundle;
 
+import com.alonar.android.passmanager.data.PassDatabase;
 import com.alonar.android.passmanager.data.PassEntry;
 import com.alonar.android.passmanager.databinding.ActivityMainBinding;
-import com.alonar.android.passmanager.utilities.FakeDataUtils;
+import com.alonar.android.passmanager.utilities.AppExecutors;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.View;
 
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private ActivityMainBinding binding;
+    private PassDatabase mDb;
+    private RecyclerView mRecyclerView;
+    private PassAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        setupRecyclerView();
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mDb = PassDatabase.getInstance(getApplicationContext());
+        initAddButton();
+        setupRecyclerView();
+    }
+
+    private void initAddButton() {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                String entryName = "new added";
+                Type type = Type.OTHER;
+                String password = "abc123**7";
+                Date date = new Date();
+
+                final PassEntry passEntry = new PassEntry(entryName, type, password, date);
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDb.passDao().insertEntry(passEntry);
+
+                    }
+                });
             }
         });
     }
 
     private void setupRecyclerView() {
-        RecyclerView recyclerView = binding.passlistRecView;
+        mRecyclerView = binding.passlistRecView;
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setLayoutManager(layoutManager);
 
-        // TEMP - data for testing
-        ArrayList<PassEntry> passEntries = FakeDataUtils.generateFakePassEntry();
-        PassAdapter adapter = new PassAdapter(passEntries);
-        recyclerView.setAdapter(adapter);
+        final LiveData<List<PassEntry>> passEntries = mDb.passDao().loadAllEntries();
+
+        passEntries.observe(MainActivity.this, new Observer<List<PassEntry>>() {
+
+            @Override
+            public void onChanged(List<PassEntry> entries) {
+                Log.d(TAG, "Receiving database update for entries");
+                mAdapter = new PassAdapter((ArrayList) entries);
+                mRecyclerView.setAdapter(mAdapter);
+            }
+
+        });
     }
 
     @Override

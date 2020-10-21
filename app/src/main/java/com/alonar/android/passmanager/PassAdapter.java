@@ -1,6 +1,7 @@
 package com.alonar.android.passmanager;
 
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,7 +17,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterViewHolder> {
+
+    private static final String TAG = PassAdapter.class.getSimpleName();
+
     private ArrayList<PassEntry> mDataset;
+
+    public PassAdapter(ArrayList<PassEntry> myDataset) {
+        mDataset = myDataset;
+    }
 
     @NonNull
     @Override
@@ -55,9 +63,7 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
         }
     }
 
-    public PassAdapter(ArrayList<PassEntry> myDataset) {
-        mDataset = myDataset;
-    }
+
 
     @Override
     public int getItemCount() {
