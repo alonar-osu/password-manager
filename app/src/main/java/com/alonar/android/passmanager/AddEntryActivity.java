@@ -2,10 +2,13 @@ package com.alonar.android.passmanager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 
 import com.alonar.android.passmanager.data.PassDatabase;
@@ -75,6 +78,11 @@ public class AddEntryActivity extends AppCompatActivity {
         }
         mName.setText(entry.getName());
         mPassword.setText(entry.getPassword());
+
+        // testing
+        mPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+        mPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
         setTypeInViews(entry.getType());
     }
 
@@ -110,6 +118,21 @@ public class AddEntryActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void ShowHidePass(View view){
+
+        if(view.getId()==R.id.show_pass_icon) {
+
+            if (mPassword.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
+                ((ImageView) view).setImageResource(R.drawable.ic_visibility);
+                mPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            }
+            else {
+                ((ImageView) view).setImageResource(R.drawable.ic_visibility_off);
+                mPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+        }
     }
 
     public Type getTypeFromViews() {
