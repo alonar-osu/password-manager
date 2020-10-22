@@ -5,7 +5,9 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 @Dao
 public interface PassDao {
@@ -15,5 +17,11 @@ public interface PassDao {
 
     @Insert
     void insertEntry(PassEntry passEntry);
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    void updateEntry(PassEntry passEntry);
+
+    @Query("SELECT * FROM entries WHERE mId = :id")
+    LiveData<PassEntry> loadEntryById(int id);
 
 }

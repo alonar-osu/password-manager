@@ -3,8 +3,8 @@ package com.alonar.android.passmanager;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
-
 
 import com.alonar.android.passmanager.data.PassEntry;
 import com.alonar.android.passmanager.databinding.PassListItemBinding;
@@ -21,8 +21,10 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
     private static final String TAG = PassAdapter.class.getSimpleName();
 
     private ArrayList<PassEntry> mDataset;
+    final private ItemClickListener mItemClickListener;
 
-    public PassAdapter(ArrayList<PassEntry> myDataset) {
+    public PassAdapter(ArrayList<PassEntry> myDataset, ItemClickListener listener) {
+        mItemClickListener = listener;
         mDataset = myDataset;
     }
 
@@ -49,25 +51,35 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
         holder.binding.tvPassDate.setText(dateString);
     }
 
-    public static class PassAdapterViewHolder extends RecyclerView.ViewHolder {
+     class PassAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private PassListItemBinding binding;
 
         public PassAdapterViewHolder(PassListItemBinding binding) {
            super(binding.getRoot());
            this.binding = binding;
+           binding.getRoot().setOnClickListener(this);
         }
 
         public void bind(PassEntry passEntry) {
             binding.setPassentry(passEntry);
             binding.executePendingBindings();
         }
+
+        @Override
+        public void onClick(View view) {
+            int elementId = mDataset.get(getAdapterPosition()).getId();
+            mItemClickListener.onItemClickListener(elementId);
+        }
     }
 
-
+    public interface ItemClickListener {
+        void onItemClickListener(int itemId);
+    }
 
     @Override
     public int getItemCount() {
         return mDataset!= null ? mDataset.size() : 0;
     }
+
 
 }

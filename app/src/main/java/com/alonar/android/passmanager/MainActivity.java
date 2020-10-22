@@ -7,6 +7,7 @@ import com.alonar.android.passmanager.data.PassDatabase;
 import com.alonar.android.passmanager.data.PassEntry;
 import com.alonar.android.passmanager.databinding.ActivityMainBinding;
 import com.alonar.android.passmanager.utilities.AppExecutors;
+import com.alonar.android.passmanager.utilities.Constants;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PassAdapter.ItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -76,10 +77,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<PassEntry> entries) {
                 Log.d(TAG, "Updating list of entries from LiveData in ViewModel");
-                mAdapter = new PassAdapter((ArrayList) entries);
+                mAdapter = new PassAdapter((ArrayList) entries, MainActivity.this);
                 mRecyclerView.setAdapter(mAdapter);
             }
         });
+
     }
 
     @Override
@@ -97,5 +99,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemClickListener(int itemId) {
+        Intent intent = new Intent(MainActivity.this, AddEntryActivity.class);
+        intent.putExtra(Constants.EXTRA_ENTRY_ID, itemId);
+        startActivity(intent);
     }
 }

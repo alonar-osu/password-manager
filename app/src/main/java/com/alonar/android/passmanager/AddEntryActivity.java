@@ -1,6 +1,8 @@
 package com.alonar.android.passmanager;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,8 +15,14 @@ import com.alonar.android.passmanager.utilities.AppExecutors;
 
 import java.util.Date;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+
+import static com.alonar.android.passmanager.utilities.Constants.DEFAULT_ENTRY_ID;
+import static com.alonar.android.passmanager.utilities.Constants.EXTRA_ENTRY_ID;
 
 public class AddEntryActivity extends AppCompatActivity {
 
@@ -24,8 +32,8 @@ public class AddEntryActivity extends AppCompatActivity {
     EditText mName;
     EditText mPassword;
     RadioGroup mRadioGroup;
-    Button mSaveButton;
-
+    Button mButton;
+    private int mEntryId = DEFAULT_ENTRY_ID;
     private PassDatabase mDb;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +44,46 @@ public class AddEntryActivity extends AppCompatActivity {
 
         mDb = PassDatabase.getInstance(getApplicationContext());
 
+        launchAsEditableIfUpdating();
+    }
+
+    private void launchAsEditableIfUpdating() {
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(EXTRA_ENTRY_ID)) {
+            mButton.setText(R.string.update_button);
+            if (mEntryId == DEFAULT_ENTRY_ID) {
+                mEntryId = intent.getIntExtra(EXTRA_ENTRY_ID, DEFAULT_ENTRY_ID);
+
+                Log.d(TAG, "Retrieving specific task from database");
+                final LiveData<PassEntry> entry = mDb.passDao().loadEntryById(mEntryId);
+
+                entry.observe(this, new Observer<PassEntry>() {
+                    @Override
+                    public void onChanged(@Nullable PassEntry passEntry) {
+                        entry.removeObserver(this);
+                        Log.d(TAG, "Receiving database update from LiveData");
+                        populateUI(passEntry);
+                    }
+                });
+            }
+        }
+    }
+
+    private void populateUI(PassEntry entry) {
+        if (entry == null) {
+            return;
+        }
+        mName.setText(entry.getName());
+        mPassword.setText(entry.getPassword());
+        setTypeInViews(entry.getType());
     }
 
     private void initViews() {
         mName = binding.etEntryName;
         mPassword = binding.etEntryPassword;
         mRadioGroup = binding.radioGroup;
-        mSaveButton = binding.saveButton;
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        mButton = binding.saveButton;
+        mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onSaveButtonClicked();
@@ -61,7 +101,12 @@ public class AddEntryActivity extends AppCompatActivity {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                mDb.passDao().insertEntry(passEntry);
+                if (mEntryId == DEFAULT_ENTRY_ID) {
+                    mDb.passDao().insertEntry(passEntry);
+                } else {
+                    passEntry.setId(mEntryId);
+                    mDb.passDao().updateEntry(passEntry);
+                }
                 finish();
             }
         });
@@ -92,6 +137,25 @@ public class AddEntryActivity extends AppCompatActivity {
        return type;
     }
 
-
-
+    public void setTypeInViews(Type type) {
+        switch (type) {
+            case EMAIL:
+                binding.radioGroup.check(R.id.radButton1);
+                break;
+            case APP:
+                binding.radioGroup.check(R.id.radButton2);
+                break;
+            case WEBSITE:
+                binding.radioGroup.check(R.id.radButton3);
+                break;
+            case BANK:
+                binding.radioGroup.check(R.id.radButton4);
+                break;
+            case UTILITY:
+                binding.radioGroup.check(R.id.radButton5);
+                break;
+            case OTHER:
+                binding.radioGroup.check(R.id.radButton6);
+        }
+    }
 }
