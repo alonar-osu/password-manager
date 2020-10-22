@@ -16,6 +16,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +30,8 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static android.icu.lang.UCharacter.DecompositionType.VERTICAL;
 
 public class MainActivity extends AppCompatActivity implements PassAdapter.ItemClickListener {
 
@@ -42,13 +46,40 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        setupMainView();
         mDb = PassDatabase.getInstance(getApplicationContext());
         initAddButton();
         setupRecyclerView();
+        initSwipeToDeleteIem();
+    }
+
+    private void setupMainView() {
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+    }
+
+    private void initSwipeToDeleteIem() {
+        // swipe to delete
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT
+                | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        int position = viewHolder.getAdapterPosition();
+                        List<PassEntry> entries = mAdapter.getEntries();
+                        mDb.passDao().deleteEntry(entries.get(position));
+                    }
+                });
+            }
+        }).attachToRecyclerView(mRecyclerView);
     }
 
     private void initAddButton() {
@@ -68,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
         setupViewModel();
+
+        DividerItemDecoration decoration = new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL);
+        mRecyclerView.addItemDecoration(decoration);
     }
 
     private void setupViewModel() {
@@ -81,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
                 mRecyclerView.setAdapter(mAdapter);
             }
         });
-
     }
 
     @Override

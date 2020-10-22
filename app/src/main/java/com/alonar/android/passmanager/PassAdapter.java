@@ -12,6 +12,7 @@ import com.alonar.android.passmanager.utilities.DateConverter;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -81,5 +82,6 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
         return mDataset!= null ? mDataset.size() : 0;
     }
 
+    public List<PassEntry> getEntries() { return mDataset; }
 
 }
