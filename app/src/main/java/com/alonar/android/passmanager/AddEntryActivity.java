@@ -105,19 +105,23 @@ public class AddEntryActivity extends AppCompatActivity {
         Type type = getTypeFromViews();
         Date date = new Date();
 
-        final PassEntry passEntry = new PassEntry(name, type, password, date);
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (mEntryId == DEFAULT_ENTRY_ID) {
-                    mDb.passDao().insertEntry(passEntry);
-                } else {
-                    passEntry.setId(mEntryId);
-                    mDb.passDao().updateEntry(passEntry);
+        if (name.trim().equals("")) {
+            mName.setError("Name this entry?");
+        } else {
+            final PassEntry passEntry = new PassEntry(name, type, password, date);
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (mEntryId == DEFAULT_ENTRY_ID) {
+                        mDb.passDao().insertEntry(passEntry);
+                    } else {
+                        passEntry.setId(mEntryId);
+                        mDb.passDao().updateEntry(passEntry);
+                    }
+                    finish();
                 }
-                finish();
-            }
-        });
+            });
+        }
     }
 
     public void ShowHidePass(View view){
