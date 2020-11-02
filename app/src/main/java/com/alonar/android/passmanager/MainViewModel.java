@@ -2,8 +2,8 @@ package com.alonar.android.passmanager;
 
 import android.app.Application;
 
-import com.alonar.android.passmanager.data.PassDatabase;
-import com.alonar.android.passmanager.data.PassEntry;
+import com.alonar.android.passmanager.data.Entry;
+import com.alonar.android.passmanager.data.EntryDatabase;
 
 import java.util.List;
 
@@ -15,15 +15,15 @@ public class MainViewModel extends AndroidViewModel {
 
     private static final String TAG = MainViewModel.class.getSimpleName();
 
-    private LiveData<List<PassEntry>> entries;
+    private LiveData<List<Entry>> entries;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
-        PassDatabase database = PassDatabase.getInstance(this.getApplication());
+        EntryDatabase database = EntryDatabase.getInstance(this.getApplication());
         entries = database.passDao().loadAllEntries();
     }
 
-    public LiveData<List<PassEntry>> getEntries() {
+    public LiveData<List<Entry>> getEntries() {
         return entries;
     }
 

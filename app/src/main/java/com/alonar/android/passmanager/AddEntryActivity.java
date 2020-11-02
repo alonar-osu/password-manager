@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 
-import com.alonar.android.passmanager.data.PassDatabase;
-import com.alonar.android.passmanager.data.PassEntry;
+import com.alonar.android.passmanager.data.EntryDatabase;
+import com.alonar.android.passmanager.data.Entry;
 import com.alonar.android.passmanager.databinding.ActivityAddEntryBinding;
 import com.alonar.android.passmanager.utilities.AppExecutors;
 
@@ -37,7 +37,7 @@ public class AddEntryActivity extends AppCompatActivity {
     RadioGroup mRadioGroup;
     Button mButton;
     private int mEntryId = DEFAULT_ENTRY_ID;
-    private PassDatabase mDb;
+    private EntryDatabase mDb;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +45,7 @@ public class AddEntryActivity extends AppCompatActivity {
 
         initViews();
 
-        mDb = PassDatabase.getInstance(getApplicationContext());
+        mDb = EntryDatabase.getInstance(getApplicationContext());
 
         launchAsEditableIfUpdating();
     }
@@ -58,11 +58,11 @@ public class AddEntryActivity extends AppCompatActivity {
                 mEntryId = intent.getIntExtra(EXTRA_ENTRY_ID, DEFAULT_ENTRY_ID);
 
                 Log.d(TAG, "Retrieving specific task from database");
-                final LiveData<PassEntry> entry = mDb.passDao().loadEntryById(mEntryId);
+                final LiveData<Entry> entry = mDb.passDao().loadEntryById(mEntryId);
 
-                entry.observe(this, new Observer<PassEntry>() {
+                entry.observe(this, new Observer<Entry>() {
                     @Override
-                    public void onChanged(@Nullable PassEntry passEntry) {
+                    public void onChanged(@Nullable Entry passEntry) {
                         entry.removeObserver(this);
                         Log.d(TAG, "Receiving database update from LiveData");
                         populateUI(passEntry);
@@ -72,7 +72,7 @@ public class AddEntryActivity extends AppCompatActivity {
         }
     }
 
-    private void populateUI(PassEntry entry) {
+    private void populateUI(Entry entry) {
         if (entry == null) {
             return;
         }
@@ -108,7 +108,7 @@ public class AddEntryActivity extends AppCompatActivity {
         if (name.trim().equals("")) {
             mName.setError("Name this entry?");
         } else {
-            final PassEntry passEntry = new PassEntry(name, type, password, date);
+            final Entry passEntry = new Entry(name, type, password, date);
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {

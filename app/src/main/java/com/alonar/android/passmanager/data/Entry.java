@@ -11,7 +11,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "entries")
-public class PassEntry {
+public class Entry {
 
     @PrimaryKey(autoGenerate = true)
     private int mId;
@@ -21,7 +21,7 @@ public class PassEntry {
     private Date mDate;
 
     @Ignore
-    public PassEntry(String name, Type type, String password, Date date) {
+    public Entry(String name, Type type, String password, Date date) {
         mName = name;
         mType = type;
         mPassword = password;
@@ -29,7 +29,7 @@ public class PassEntry {
     }
 
     // includes mId
-    public PassEntry(int id, String name, Type type, String password, Date date) {
+    public Entry(int id, String name, Type type, String password, Date date) {
         mId = id;
         mName = name;
         mType = type;

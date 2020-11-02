@@ -12,23 +12,23 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import static com.alonar.android.passmanager.utilities.Constants.DATABASE_NAME;
+import static com.alonar.android.passmanager.utilities.Constants.ENTRIES_DATABASE_NAME;
 
-@Database(entities = {PassEntry.class}, version = 1, exportSchema = false)
+@Database(entities = {Entry.class}, version = 1, exportSchema = false)
 @TypeConverters({DateConverter.class, PassTypeConverter.class})
-public abstract class PassDatabase extends RoomDatabase {
+public abstract class EntryDatabase extends RoomDatabase {
 
-    private static final String TAG = PassDatabase.class.getSimpleName();
+    private static final String TAG = EntryDatabase.class.getSimpleName();
 
     private static final Object LOCK = new Object();
-    private static PassDatabase sInstance;
+    private static EntryDatabase sInstance;
 
-    public static PassDatabase getInstance(Context context) {
+    public static EntryDatabase getInstance(Context context) {
         if (sInstance == null) {
             synchronized (LOCK) {
                 Log.d(TAG, "Creating new database instance");
                 sInstance = Room.databaseBuilder(context.getApplicationContext(),
-                        PassDatabase.class, DATABASE_NAME)
+                        EntryDatabase.class, ENTRIES_DATABASE_NAME)
                         .build();
             }
         }
@@ -36,5 +36,5 @@ public abstract class PassDatabase extends RoomDatabase {
         return sInstance;
     }
 
-    public abstract PassDao passDao();
+    public abstract EntryDao passDao();
 }

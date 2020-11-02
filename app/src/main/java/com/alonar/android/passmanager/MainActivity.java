@@ -3,8 +3,8 @@ package com.alonar.android.passmanager;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.alonar.android.passmanager.data.PassDatabase;
-import com.alonar.android.passmanager.data.PassEntry;
+import com.alonar.android.passmanager.data.Entry;
+import com.alonar.android.passmanager.data.EntryDatabase;
 import com.alonar.android.passmanager.databinding.ActivityMainBinding;
 import com.alonar.android.passmanager.utilities.AppExecutors;
 import com.alonar.android.passmanager.utilities.Constants;
@@ -13,7 +13,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -28,17 +27,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import static android.icu.lang.UCharacter.DecompositionType.VERTICAL;
 
 public class MainActivity extends AppCompatActivity implements PassAdapter.ItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private ActivityMainBinding binding;
-    private PassDatabase mDb;
+    private EntryDatabase mDb;
     private RecyclerView mRecyclerView;
     private PassAdapter mAdapter;
 
@@ -47,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
         super.onCreate(savedInstanceState);
 
         setupMainView();
-        mDb = PassDatabase.getInstance(getApplicationContext());
+        mDb = EntryDatabase.getInstance(getApplicationContext());
         initAddButton();
         setupRecyclerView();
         initSwipeToDeleteIem();
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
                     @Override
                     public void run() {
                         int position = viewHolder.getAdapterPosition();
-                        List<PassEntry> entries = mAdapter.getEntries();
+                        List<Entry> entries = mAdapter.getEntries();
                         mDb.passDao().deleteEntry(entries.get(position));
                     }
                 });
@@ -106,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
 
     private void setupViewModel() {
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getEntries().observe(MainActivity.this, new Observer<List<PassEntry>>() {
+        viewModel.getEntries().observe(MainActivity.this, new Observer<List<Entry>>() {
 
             @Override
-            public void onChanged(List<PassEntry> entries) {
+            public void onChanged(List<Entry> entries) {
                 Log.d(TAG, "Updating list of entries from LiveData in ViewModel");
                 mAdapter = new PassAdapter((ArrayList) entries, MainActivity.this);
                 mRecyclerView.setAdapter(mAdapter);

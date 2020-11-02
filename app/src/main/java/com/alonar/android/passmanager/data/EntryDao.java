@@ -11,21 +11,21 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
-public interface PassDao {
+public interface EntryDao {
 
     @Query("SELECT * FROM entries ORDER BY mDate")
-    LiveData<List<PassEntry>> loadAllEntries();
+    LiveData<List<Entry>> loadAllEntries();
 
     @Insert
-    void insertEntry(PassEntry passEntry);
+    void insertEntry(Entry passEntry);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    void updateEntry(PassEntry passEntry);
+    void updateEntry(Entry passEntry);
 
     @Query("SELECT * FROM entries WHERE mId = :id")
-    LiveData<PassEntry> loadEntryById(int id);
+    LiveData<Entry> loadEntryById(int id);
 
     @Delete
-    void deleteEntry(PassEntry passEntry);
+    void deleteEntry(Entry passEntry);
 
 }

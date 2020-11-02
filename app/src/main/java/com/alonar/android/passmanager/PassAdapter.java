@@ -1,12 +1,11 @@
 package com.alonar.android.passmanager;
 
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.alonar.android.passmanager.data.PassEntry;
+import com.alonar.android.passmanager.data.Entry;
 import com.alonar.android.passmanager.databinding.PassListItemBinding;
 import com.alonar.android.passmanager.utilities.DateConverter;
 
@@ -21,10 +20,10 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
 
     private static final String TAG = PassAdapter.class.getSimpleName();
 
-    private ArrayList<PassEntry> mDataset;
+    private ArrayList<Entry> mDataset;
     final private ItemClickListener mItemClickListener;
 
-    public PassAdapter(ArrayList<PassEntry> myDataset, ItemClickListener listener) {
+    public PassAdapter(ArrayList<Entry> myDataset, ItemClickListener listener) {
         mItemClickListener = listener;
         mDataset = myDataset;
     }
@@ -42,7 +41,7 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
     @Override
     public void onBindViewHolder(@NonNull PassAdapterViewHolder holder, int position) {
 
-        PassEntry passEntry = mDataset.get(position);
+        Entry passEntry = mDataset.get(position);
         holder.bind(passEntry);
 
         holder.binding.tvPassName.setText(mDataset.get(position).getName());
@@ -61,7 +60,7 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
            binding.getRoot().setOnClickListener(this);
         }
 
-        public void bind(PassEntry passEntry) {
+        public void bind(Entry passEntry) {
             binding.setPassentry(passEntry);
             binding.executePendingBindings();
         }
@@ -82,6 +81,6 @@ public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterVie
         return mDataset!= null ? mDataset.size() : 0;
     }
 
-    public List<PassEntry> getEntries() { return mDataset; }
+    public List<Entry> getEntries() { return mDataset; }
 
 }
