@@ -11,16 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-public class MainViewModel extends AndroidViewModel {
+public class EntryFeedViewModel extends AndroidViewModel {
 
-    private static final String TAG = MainViewModel.class.getSimpleName();
+    private static final String TAG = EntryFeedViewModel.class.getSimpleName();
 
     private LiveData<List<Entry>> entries;
 
-    public MainViewModel(@NonNull Application application) {
+    public EntryFeedViewModel(@NonNull Application application) {
         super(application);
         EntryDatabase database = EntryDatabase.getInstance(this.getApplication());
-        entries = database.passDao().loadAllEntries();
+        entries = database.entryDao().loadAllEntries();
     }
 
     public LiveData<List<Entry>> getEntries() {

@@ -36,5 +36,5 @@ public abstract class EntryDatabase extends RoomDatabase {
         return sInstance;
     }
 
-    public abstract EntryDao passDao();
+    public abstract EntryDao entryDao();
 }

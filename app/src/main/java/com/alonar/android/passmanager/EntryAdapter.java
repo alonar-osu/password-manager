@@ -16,14 +16,14 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class PassAdapter extends RecyclerView.Adapter<PassAdapter.PassAdapterViewHolder> {
+public class EntryAdapter extends RecyclerView.Adapter<EntryAdapter.PassAdapterViewHolder> {
 
-    private static final String TAG = PassAdapter.class.getSimpleName();
+    private static final String TAG = EntryAdapter.class.getSimpleName();
 
     private ArrayList<Entry> mDataset;
     final private ItemClickListener mItemClickListener;
 
-    public PassAdapter(ArrayList<Entry> myDataset, ItemClickListener listener) {
+    public EntryAdapter(ArrayList<Entry> myDataset, ItemClickListener listener) {
         mItemClickListener = listener;
         mDataset = myDataset;
     }

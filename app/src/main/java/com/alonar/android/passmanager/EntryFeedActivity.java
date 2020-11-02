@@ -29,14 +29,14 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PassAdapter.ItemClickListener {
+public class EntryFeedActivity extends AppCompatActivity implements EntryAdapter.ItemClickListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = EntryFeedActivity.class.getSimpleName();
 
     private ActivityMainBinding binding;
     private EntryDatabase mDb;
     private RecyclerView mRecyclerView;
-    private PassAdapter mAdapter;
+    private EntryAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
                     public void run() {
                         int position = viewHolder.getAdapterPosition();
                         List<Entry> entries = mAdapter.getEntries();
-                        mDb.passDao().deleteEntry(entries.get(position));
+                        mDb.entryDao().deleteEntry(entries.get(position));
                     }
                 });
             }
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
             @Override
             public void onClick(View view) {
 
-                Intent addEntryIntent = new Intent(MainActivity.this, AddEntryActivity.class);
+                Intent addEntryIntent = new Intent(EntryFeedActivity.this, AddEntryActivity.class);
                 startActivity(addEntryIntent);
             }
         });
@@ -101,13 +101,13 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
     }
 
     private void setupViewModel() {
-        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        viewModel.getEntries().observe(MainActivity.this, new Observer<List<Entry>>() {
+        EntryFeedViewModel viewModel = ViewModelProviders.of(this).get(EntryFeedViewModel.class);
+        viewModel.getEntries().observe(EntryFeedActivity.this, new Observer<List<Entry>>() {
 
             @Override
             public void onChanged(List<Entry> entries) {
                 Log.d(TAG, "Updating list of entries from LiveData in ViewModel");
-                mAdapter = new PassAdapter((ArrayList) entries, MainActivity.this);
+                mAdapter = new EntryAdapter((ArrayList) entries, EntryFeedActivity.this);
                 mRecyclerView.setAdapter(mAdapter);
             }
         });
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements PassAdapter.ItemC
 
     @Override
     public void onItemClickListener(int itemId) {
-        Intent intent = new Intent(MainActivity.this, AddEntryActivity.class);
+        Intent intent = new Intent(EntryFeedActivity.this, AddEntryActivity.class);
         intent.putExtra(Constants.EXTRA_ENTRY_ID, itemId);
         startActivity(intent);
     }

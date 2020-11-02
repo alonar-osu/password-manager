@@ -58,7 +58,7 @@ public class AddEntryActivity extends AppCompatActivity {
                 mEntryId = intent.getIntExtra(EXTRA_ENTRY_ID, DEFAULT_ENTRY_ID);
 
                 Log.d(TAG, "Retrieving specific task from database");
-                final LiveData<Entry> entry = mDb.passDao().loadEntryById(mEntryId);
+                final LiveData<Entry> entry = mDb.entryDao().loadEntryById(mEntryId);
 
                 entry.observe(this, new Observer<Entry>() {
                     @Override
@@ -79,7 +79,6 @@ public class AddEntryActivity extends AppCompatActivity {
         mName.setText(entry.getName());
         mPassword.setText(entry.getPassword());
 
-        // testing
         mPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
         mPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
@@ -113,10 +112,10 @@ public class AddEntryActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (mEntryId == DEFAULT_ENTRY_ID) {
-                        mDb.passDao().insertEntry(passEntry);
+                        mDb.entryDao().insertEntry(passEntry);
                     } else {
                         passEntry.setId(mEntryId);
-                        mDb.passDao().updateEntry(passEntry);
+                        mDb.entryDao().updateEntry(passEntry);
                     }
                     finish();
                 }
