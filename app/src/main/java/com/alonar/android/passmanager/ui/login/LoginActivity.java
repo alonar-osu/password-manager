@@ -2,6 +2,7 @@ package com.alonar.android.passmanager.ui.login;
 
 import android.app.Activity;
 
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -23,21 +24,22 @@ import android.widget.Toast;
 
 import com.alonar.android.passmanager.EntryFeedActivity;
 import com.alonar.android.passmanager.R;
+import com.alonar.android.passmanager.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private ActivityLoginBinding binding;
     private LoginViewModel loginViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-        final EditText passwordEditText = findViewById(R.id.password);
-        final Button loginButton = findViewById(R.id.login);
-        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
+        final EditText passwordEditText = binding.password;
+        final Button loginButton = binding.login;
+        final ProgressBar loadingProgressBar = binding.loading;
 
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
