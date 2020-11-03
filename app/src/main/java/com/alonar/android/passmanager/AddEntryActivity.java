@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import static com.alonar.android.passmanager.utilities.Constants.DEFAULT_ENTRY_ID;
 import static com.alonar.android.passmanager.utilities.Constants.EXTRA_ENTRY_ID;
@@ -50,6 +51,19 @@ public class AddEntryActivity extends AppCompatActivity {
         launchAsEditableIfUpdating();
     }
 
+    private void initViews() {
+        mName = binding.etEntryName;
+        mPassword = binding.etEntryPassword;
+        mRadioGroup = binding.radioGroup;
+        mButton = binding.saveButton;
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSaveButtonClicked();
+            }
+        });
+    }
+
     private void launchAsEditableIfUpdating() {
         Intent intent = getIntent();
         if(intent != null && intent.hasExtra(EXTRA_ENTRY_ID)) {
@@ -57,13 +71,14 @@ public class AddEntryActivity extends AppCompatActivity {
             if (mEntryId == DEFAULT_ENTRY_ID) {
                 mEntryId = intent.getIntExtra(EXTRA_ENTRY_ID, DEFAULT_ENTRY_ID);
 
-                Log.d(TAG, "Retrieving specific task from database");
-                final LiveData<Entry> entry = mDb.entryDao().loadEntryById(mEntryId);
+                AddEntryViewModelFactory factory = new AddEntryViewModelFactory(mDb, mEntryId);
+                final AddEntryViewModel viewModel
+                        = ViewModelProviders.of(this, factory).get(AddEntryViewModel.class);
 
-                entry.observe(this, new Observer<Entry>() {
+                viewModel.getEntry().observe(this, new Observer<Entry>() {
                     @Override
                     public void onChanged(@Nullable Entry passEntry) {
-                        entry.removeObserver(this);
+                        viewModel.getEntry().removeObserver(this);
                         Log.d(TAG, "Receiving database update from LiveData");
                         populateUI(passEntry);
                     }
@@ -79,24 +94,10 @@ public class AddEntryActivity extends AppCompatActivity {
         mName.setText(entry.getName());
         mPassword.setText(entry.getPassword());
 
-        mPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-        mPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-
         setTypeInViews(entry.getType());
     }
 
-    private void initViews() {
-        mName = binding.etEntryName;
-        mPassword = binding.etEntryPassword;
-        mRadioGroup = binding.radioGroup;
-        mButton = binding.saveButton;
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSaveButtonClicked();
-            }
-        });
-    }
+
 
     public void onSaveButtonClicked() {
         String name = mName.getText().toString();
@@ -184,4 +185,5 @@ public class AddEntryActivity extends AppCompatActivity {
                 binding.radioGroup.check(R.id.radButton6);
         }
     }
+
 }
