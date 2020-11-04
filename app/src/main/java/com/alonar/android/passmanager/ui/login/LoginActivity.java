@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.alonar.android.passmanager.EntryFeedActivity;
 import com.alonar.android.passmanager.R;
 import com.alonar.android.passmanager.databinding.ActivityLoginBinding;
+import com.alonar.android.passmanager.ui.register.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -40,6 +41,14 @@ public class LoginActivity extends AppCompatActivity {
         final EditText passwordEditText = binding.password;
         final Button loginButton = binding.login;
         final ProgressBar loadingProgressBar = binding.loading;
+
+        final Boolean notRegistered = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getBoolean("notRegistered", true);
+
+        if (notRegistered) {
+            goToRegister();
+            finish();
+        }
 
         loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
@@ -85,6 +94,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUI() {
         Intent intent = new Intent(LoginActivity.this, EntryFeedActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToRegister() {
+        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }
 
