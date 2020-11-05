@@ -2,7 +2,6 @@ package com.alonar.android.passmanager.ui.login;
 
 import com.alonar.android.passmanager.data.EntryDatabase;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -18,10 +17,6 @@ public class LoginViewModelFactory implements ViewModelProvider.Factory {
     public <T extends ViewModel> T create(Class<T> modelClass) {
 
             return (T) new LoginViewModel(mDb);
-
     }
-
-
-
 
 }

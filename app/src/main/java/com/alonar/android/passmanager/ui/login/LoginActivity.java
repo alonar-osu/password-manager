@@ -4,8 +4,8 @@ import android.app.Activity;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -35,7 +35,10 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private EntryDatabase mDb;
     private LoginViewModel viewModel;
-    private String masterPass;
+    private String mSavedMasterPassword;
+    EditText mEnteredMasterPassword;
+    Button mLoginButton;
+    ProgressBar mLoadingProgressBar;
 
 
     @Override
@@ -47,18 +50,17 @@ public class LoginActivity extends AppCompatActivity {
         LoginViewModelFactory factory = new LoginViewModelFactory(mDb);
         viewModel = ViewModelProviders.of(this, factory).get(LoginViewModel.class);
 
-        final EditText passwordEditText = binding.password;
-        final Button loginButton = binding.login;
-        final ProgressBar loadingProgressBar = binding.loading;
+        initViews();
+        checkRegistration();
+        setupViewModel();
+    }
 
-        final Boolean notRegistered = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                .getBoolean("notRegistered", true);
+    private void setupViewModel() {
+        observeSavedPassword();
+        observeLogin();
+    }
 
-        if (notRegistered) {
-            goToRegister();
-            finish();
-        }
-
+    private void observeSavedPassword() {
         viewModel.getRegistrInfo().observe(this, new Observer<Registration>() {
             @Override
             public void onChanged(@Nullable Registration registrInfo) {
@@ -66,28 +68,46 @@ public class LoginActivity extends AppCompatActivity {
                 if (registrInfo == null) {
                     return;
                 }
-                masterPass = registrInfo.getPassword();
+                mSavedMasterPassword = registrInfo.getPassword();
             }
         });
+    }
 
+    private void observeLogin() {
         viewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
             public void onChanged(@Nullable LoginResult loginResult) {
                 if (loginResult == null) {
                     return;
                 }
-                loadingProgressBar.setVisibility(View.GONE);
+                mLoadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
                     showLoginFailed(loginResult.getError());
                 }
                 if (loginResult.getSuccess()) {
-                    updateUI();
+                    updateUI(EntryFeedActivity.class);
                     finish();
                 }
                 setResult(Activity.RESULT_OK);
             }
         });
+    }
 
+    private void initViews() {
+        mEnteredMasterPassword = binding.password;
+        mLoginButton = binding.login;
+        mLoadingProgressBar = binding.loading;
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mLoadingProgressBar.setVisibility(View.VISIBLE);
+                viewModel.login(mEnteredMasterPassword.getText().toString(), mSavedMasterPassword);
+            }
+        });
+        watchEnteredPassword();
+    }
+
+    private void watchEnteredPassword() {
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -97,28 +117,25 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                loginButton.setEnabled(true);
+                mLoginButton.setEnabled(true);
             }
         };
 
-        passwordEditText.addTextChangedListener(afterTextChangedListener);
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                viewModel.login(passwordEditText.getText().toString(), masterPass);
-            }
-        });
+        mEnteredMasterPassword.addTextChangedListener(afterTextChangedListener);
     }
 
-    private void updateUI() {
-        Intent intent = new Intent(LoginActivity.this, EntryFeedActivity.class);
-        startActivity(intent);
+    private void checkRegistration() {
+        final Boolean notRegistered = getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .getBoolean("notRegistered", true);
+
+        if (notRegistered) {
+            updateUI(RegisterActivity.class);
+            finish();
+        }
     }
 
-    private void goToRegister() {
-        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+    private void updateUI(Class destination) {
+        Intent intent = new Intent(LoginActivity.this, destination);
         startActivity(intent);
     }
 

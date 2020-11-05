@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Clicked regsiter button", Toast.LENGTH_SHORT).show();
 
-                // TODO: refactor to AddRegistr
+                // TODO: add view model
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
                 Date date = new Date();

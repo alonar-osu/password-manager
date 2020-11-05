@@ -2,9 +2,6 @@ package com.alonar.android.passmanager.ui.login;
 
 import androidx.annotation.Nullable;
 
-/**
- * Authentication result : success (user details) or error message.
- */
 class LoginResult {
 
     private boolean success = false;
