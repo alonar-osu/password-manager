@@ -14,7 +14,7 @@ import androidx.room.TypeConverters;
 
 import static com.alonar.android.passmanager.utilities.Constants.ENTRIES_DATABASE_NAME;
 
-@Database(entities = {Entry.class}, version = 1, exportSchema = false)
+@Database(entities = {Entry.class, Registration.class}, version = 1, exportSchema = false)
 @TypeConverters({DateConverter.class, PassTypeConverter.class})
 public abstract class EntryDatabase extends RoomDatabase {
 
@@ -37,4 +37,5 @@ public abstract class EntryDatabase extends RoomDatabase {
     }
 
     public abstract EntryDao entryDao();
+    public abstract RegistrationDao registrationDao();
 }

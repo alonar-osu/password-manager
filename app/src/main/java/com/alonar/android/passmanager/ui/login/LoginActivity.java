@@ -12,6 +12,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,19 +25,27 @@ import android.widget.Toast;
 
 import com.alonar.android.passmanager.EntryFeedActivity;
 import com.alonar.android.passmanager.R;
+import com.alonar.android.passmanager.data.EntryDatabase;
+import com.alonar.android.passmanager.data.Registration;
 import com.alonar.android.passmanager.databinding.ActivityLoginBinding;
 import com.alonar.android.passmanager.ui.register.RegisterActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
-    private LoginViewModel loginViewModel;
+    private EntryDatabase mDb;
+    private LoginViewModel viewModel;
+    private String masterPass;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
-        loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        mDb = EntryDatabase.getInstance(getApplicationContext());
+
+        LoginViewModelFactory factory = new LoginViewModelFactory(mDb);
+        viewModel = ViewModelProviders.of(this, factory).get(LoginViewModel.class);
 
         final EditText passwordEditText = binding.password;
         final Button loginButton = binding.login;
@@ -50,7 +59,18 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
 
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+        viewModel.getRegistrInfo().observe(this, new Observer<Registration>() {
+            @Override
+            public void onChanged(@Nullable Registration registrInfo) {
+
+                if (registrInfo == null) {
+                    return;
+                }
+                masterPass = registrInfo.getPassword();
+            }
+        });
+
+        viewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
             @Override
             public void onChanged(@Nullable LoginResult loginResult) {
                 if (loginResult == null) {
@@ -87,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(passwordEditText.getText().toString());
+                viewModel.login(passwordEditText.getText().toString(), masterPass);
             }
         });
     }

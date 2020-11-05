@@ -18,6 +18,4 @@ public class AddEntryViewModel extends ViewModel {
         return entry;
     }
 
-
-
 }
