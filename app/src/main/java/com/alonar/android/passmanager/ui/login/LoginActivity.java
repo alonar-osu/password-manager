@@ -6,7 +6,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -16,8 +15,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -33,9 +30,6 @@ import com.alonar.android.passmanager.databinding.ActivityLoginBinding;
 import com.alonar.android.passmanager.encryption.Decrypter;
 import com.alonar.android.passmanager.ui.register.RegisterActivity;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
@@ -44,8 +38,8 @@ public class LoginActivity extends AppCompatActivity {
     private EntryDatabase mDb;
     private LoginViewModel viewModel;
     private String mEncryptedPassword;
-    private String mIV;
-    EditText mPasswordET;
+    private String mCipherIv;
+    EditText mMasterPasswordET;
     Button mLoginButton;
     ProgressBar mLoadingProgressBar;
 
@@ -78,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 mEncryptedPassword = registrInfo.getPassword();
-                mIV = registrInfo.getIv();
+                mCipherIv = registrInfo.getIv();
             }
         });
     }
@@ -104,15 +98,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mPasswordET = binding.password;
+        mMasterPasswordET = binding.password;
         mLoginButton = binding.login;
         mLoadingProgressBar = binding.loading;
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLoadingProgressBar.setVisibility(View.VISIBLE);
-                String decryptedPassword = Decrypter.decryptPassword(mEncryptedPassword, mIV);
-                viewModel.login(mPasswordET.getText().toString(), decryptedPassword);
+                String enteredPassword = mMasterPasswordET.getText().toString();
+                viewModel.login(enteredPassword, mEncryptedPassword, mCipherIv);
             }
         });
         watchEnteredPassword();
@@ -131,8 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                 mLoginButton.setEnabled(true);
             }
         };
-
-        mPasswordET.addTextChangedListener(afterTextChangedListener);
+        mMasterPasswordET.addTextChangedListener(afterTextChangedListener);
     }
 
     private void checkRegistration() {
