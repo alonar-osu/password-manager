@@ -21,7 +21,6 @@ import java.util.Date;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -59,7 +58,7 @@ public class AddEntryActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onSaveButtonClicked();
+                onAddButtonClicked();
             }
         });
     }
@@ -97,9 +96,7 @@ public class AddEntryActivity extends AppCompatActivity {
         setTypeInViews(entry.getType());
     }
 
-
-
-    public void onSaveButtonClicked() {
+    public void onAddButtonClicked() {
         String name = mName.getText().toString();
         String password = mPassword.getText().toString();
         Type type = getTypeFromViews();

@@ -5,8 +5,8 @@ import android.app.Activity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -16,6 +16,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -28,15 +30,22 @@ import com.alonar.android.passmanager.R;
 import com.alonar.android.passmanager.data.EntryDatabase;
 import com.alonar.android.passmanager.data.Registration;
 import com.alonar.android.passmanager.databinding.ActivityLoginBinding;
+import com.alonar.android.passmanager.encryption.Decrypter;
 import com.alonar.android.passmanager.ui.register.RegisterActivity;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     private ActivityLoginBinding binding;
     private EntryDatabase mDb;
     private LoginViewModel viewModel;
-    private String mSavedMasterPassword;
-    EditText mEnteredMasterPassword;
+    private String mEncryptedPassword;
+    private String mIV;
+    EditText mPasswordET;
     Button mLoginButton;
     ProgressBar mLoadingProgressBar;
 
@@ -68,7 +77,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (registrInfo == null) {
                     return;
                 }
-                mSavedMasterPassword = registrInfo.getPassword();
+                mEncryptedPassword = registrInfo.getPassword();
+                mIV = registrInfo.getIv();
             }
         });
     }
@@ -94,14 +104,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mEnteredMasterPassword = binding.password;
+        mPasswordET = binding.password;
         mLoginButton = binding.login;
         mLoadingProgressBar = binding.loading;
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLoadingProgressBar.setVisibility(View.VISIBLE);
-                viewModel.login(mEnteredMasterPassword.getText().toString(), mSavedMasterPassword);
+                String decryptedPassword = Decrypter.decryptPassword(mEncryptedPassword, mIV);
+                viewModel.login(mPasswordET.getText().toString(), decryptedPassword);
             }
         });
         watchEnteredPassword();
@@ -121,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
-        mEnteredMasterPassword.addTextChangedListener(afterTextChangedListener);
+        mPasswordET.addTextChangedListener(afterTextChangedListener);
     }
 
     private void checkRegistration() {

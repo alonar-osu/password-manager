@@ -32,4 +32,7 @@ public class LoginViewModel extends ViewModel {
         }
     }
 
+    public void getDecryptedPassword() {
+    }
+
 }
