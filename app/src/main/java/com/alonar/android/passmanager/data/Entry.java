@@ -18,43 +18,42 @@ public class Entry {
     private String mName;
     private Type mType;
     private String mPassword;
+    private String mIv;
     private Date mDate;
 
     @Ignore
-    public Entry(String name, Type type, String password, Date date) {
+    public Entry(String name, Type type, String password, String iv, Date date) {
         mName = name;
         mType = type;
         mPassword = password;
+        mIv = iv;
         mDate = date;
     }
 
     // includes mId
-    public Entry(int id, String name, Type type, String password, Date date) {
+    public Entry(int id, String name, Type type, String password, String iv, Date date) {
         mId = id;
         mName = name;
         mType = type;
         mPassword = password;
+        mIv = iv;
         mDate = date;
     }
 
     public int getId() {
         return mId;
     }
-
     public void setId(int id) { mId = id; }
-
     public String getName() {
         return mName;
     }
-
     public Type getType() {
         return mType;
     }
-
     public String getPassword() {
         return mPassword;
     }
-
+    public String getIv() {return mIv;}
     public Date getDate() {
         return mDate;
     }

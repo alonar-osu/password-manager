@@ -14,6 +14,9 @@ import android.widget.RadioGroup;
 import com.alonar.android.passmanager.data.EntryDatabase;
 import com.alonar.android.passmanager.data.Entry;
 import com.alonar.android.passmanager.databinding.ActivityAddEntryBinding;
+import com.alonar.android.passmanager.encryption.Decrypter;
+import com.alonar.android.passmanager.encryption.EncryptedPassInfo;
+import com.alonar.android.passmanager.encryption.Encrypter;
 import com.alonar.android.passmanager.utilities.AppExecutors;
 
 import java.util.Date;
@@ -32,8 +35,8 @@ public class AddEntryActivity extends AppCompatActivity {
     private static final String TAG = AddEntryActivity.class.getSimpleName();
 
     private ActivityAddEntryBinding binding;
-    EditText mName;
-    EditText mPassword;
+    EditText mNameET;
+    EditText mPasswordET;
     RadioGroup mRadioGroup;
     Button mButton;
     private int mEntryId = DEFAULT_ENTRY_ID;
@@ -51,8 +54,8 @@ public class AddEntryActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mName = binding.etEntryName;
-        mPassword = binding.etEntryPassword;
+        mNameET = binding.etEntryName;
+        mPasswordET = binding.etEntryPassword;
         mRadioGroup = binding.radioGroup;
         mButton = binding.saveButton;
         mButton.setOnClickListener(new View.OnClickListener() {
@@ -90,48 +93,57 @@ public class AddEntryActivity extends AppCompatActivity {
         if (entry == null) {
             return;
         }
-        mName.setText(entry.getName());
-        mPassword.setText(entry.getPassword());
-
+        mNameET.setText(entry.getName());
+        // TODO: see if move to view model
+        String decryptedPassword = Decrypter.decryptPassword(entry.getPassword(), entry.getIv());
+        mPasswordET.setText(decryptedPassword);
         setTypeInViews(entry.getType());
     }
 
     public void onAddButtonClicked() {
-        String name = mName.getText().toString();
-        String password = mPassword.getText().toString();
+
+        String name = mNameET.getText().toString();
+        String enteredPassword = mPasswordET.getText().toString();
+
+        if (name.trim().equals("")) {
+            mNameET.setError("Name this entry?");
+        } else {
+            saveEntry(Encrypter.encryptPassword(enteredPassword), name);
+        }
+    }
+
+    private void saveEntry(EncryptedPassInfo encryptedPassInfo, String name) {
+        String encryptedPassword = encryptedPassInfo.getEncryptedPassword();
+        String cipherIV = encryptedPassInfo.getCipherIv();
         Type type = getTypeFromViews();
         Date date = new Date();
 
-        if (name.trim().equals("")) {
-            mName.setError("Name this entry?");
-        } else {
-            final Entry passEntry = new Entry(name, type, password, date);
-            AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mEntryId == DEFAULT_ENTRY_ID) {
-                        mDb.entryDao().insertEntry(passEntry);
-                    } else {
-                        passEntry.setId(mEntryId);
-                        mDb.entryDao().updateEntry(passEntry);
-                    }
-                    finish();
+        final Entry passEntry = new Entry(name, type, encryptedPassword, cipherIV, date);
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mEntryId == DEFAULT_ENTRY_ID) {
+                    mDb.entryDao().insertEntry(passEntry);
+                } else {
+                    passEntry.setId(mEntryId);
+                    mDb.entryDao().updateEntry(passEntry);
                 }
-            });
-        }
+                finish();
+            }
+        });
     }
 
     public void ShowHidePass(View view){
 
         if(view.getId()==R.id.show_pass_icon) {
 
-            if (mPassword.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
+            if (mPasswordET.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
                 ((ImageView) view).setImageResource(R.drawable.ic_visibility);
-                mPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                mPasswordET.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
             }
             else {
                 ((ImageView) view).setImageResource(R.drawable.ic_visibility_off);
-                mPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                mPasswordET.setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
         }
     }
